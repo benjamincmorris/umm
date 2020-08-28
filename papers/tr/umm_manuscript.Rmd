@@ -1,0 +1,151 @@
+---
+title             : 'The many meanings of "um": \newline Children draw rich, contextual social inferences after hearing speech disfluencies'
+shorttitle        : "Social Inferences from Speech Disfluencies"
+
+author: 
+  - name          : "Benjamin C. Morris"
+    affiliation   : "1"
+    corresponding : yes    # Define only one corresponding author
+    address       : "Department of Psychology, University of Chicago, 5848 S University Ave, Chicago, IL 60637"
+    email         : "benmorris@uchicago.edu"
+  - name          : "Daniel Yurovsky"
+    affiliation   : "1,2"
+    corresponding : no    # Define only one corresponding author
+  - name          : "Alex Shaw"
+    affiliation   : "1"
+    corresponding : no    # Define only one corresponding author
+
+
+affiliation:
+  - id            : "1"
+    institution   : "University of Chicago"
+  - id            : "2"
+    institution   : "Carnegie Mellon University"
+
+author_note: >
+
+abstract: >
+  Timing is a crucial pillar of human communication [@stivers2009], and as such, disruptions to normative timing are marked and meaningful. These disruptions are often marked by disfluencies in one's speech (e.g., "um") that signal difficulty in planning or processing. By age 2, children produce disfluencies in their own speech, and draw referential predicitions after hearing a speaker produce a disfluency [@kidd2011]. Adult listeners make a variety of social inferences from delay markers, including speaker knowledge [@brennan1995], and speaker desires [@roberts2011].
+  
+keywords          : "communication, speech disfluency, mental-state inference, hesitation, uncertainty, processing time"
+wordcount         : "X"
+
+bibliography      : ["umm.bib"]
+
+header-includes:
+  - \usepackage{xcolor}
+
+figsintext        : yes
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+lineno            : yes
+
+lang              : "english"
+documentclass     : "apa6"
+classoption       : "man"
+output            : papaja::apa6_pdf
+
+---
+
+
+```{r load-packages, warning = F}
+library(papaja)
+library(feather)
+library(here)
+library(lme4)
+library(lmerTest)
+library(png)
+library(boot)
+library(broom)
+library(broom.mixed)
+library(ggthemes)
+library(tidyverse)
+library(tidyboot)
+library(glue)
+
+knitr::opts_chunk$set(fig.pos = 'tb', echo = FALSE, cache = TRUE, 
+                      warning = FALSE, message = FALSE, 
+                      sanitize = TRUE, fig.path='figs/', fig.width = 3,
+                      fig.height = 3)
+
+theme_set(theme_classic(base_size = 12) + theme(legend.position = "none")) 
+options(digits = 3, dplyr.summarise.inform = FALSE)
+set.seed(42)
+```
+
+\newcommand{\E}[1]{\mathbb{E}\left[ #1 \right]}
+
+```{r make-text-vars}
+make_text_vars <- function(df, term_name, term_filter = NULL) {
+  if(!is.null(term_filter)) {
+    filtered_df <- df %>%
+      filter(term == term_filter) 
+  } else{
+    filtered_df <- df
+  }
+    
+  walk(c("estimate", "statistic", "p.value"), 
+      ~assign(glue("{term_name}_{.x}"), 
+              filtered_df %>% pull(!!.x), 
+         envir = globalenv()))
+}
+```
+
+Imagine you ask someone on the street, "Where is the nearest train station?" and they reply "It’s um... that way." While plausibly correct, the stranger's reply is slow and marked, indicating uncertainty about accuracy of their statement.  Despite getting a relevant answer, you yourself may still feel uncertain, perhaps choosing to confirm the direction by consulting another stranger or checking your smartphone. In conversation, *how* something is said may be as meaningful as *what* is said. 
+
+In the example above, the stranger seems uncertain because they spoke disfluently, pausing in the middle of their utterance. When it comes to how something should be said, language is profoundly structured by an expectation of timeliness. Conversations across at least 10 typologically diverse languages are structured around remarkably short and consistent silences between speakers [@stivers2009]. Speakers of a given language show nuanced judgments for what consitutes a reasonable, or unreasonable, delay during a conversation, though the duration of that acceptable delay varies across languages [@stivers2009]. Thus, conversation is powerfully structured to avoid delays when possible. 
+
+Producing language in a timely manner may often conflict with demands on processing, memory, and many other factors liable to cause delays. Imagine trying to produce the answer to a difficult question or remember the plot of a movie you saw years ago-- starting or finishing your utterance in a timely manner might be quite difficult. When such delays are unavoidable, speakers may often mark them with disfluencies (e.g., filled pauses "uh" and "um"). 
+
+Conversation is rife with these small disruptions to otherwise smooth, alternating language exchange (Fox Tree, 1995; Shriberg, 1996). These disfluencies are constant; some data sources estimate that 6 disfluencies occur every 100 words in adult conversations (Fox Tree, 1995). While ubiquitous in everyday language use, disfluencies are commonly held by laypeople as errors in production with little meaning. Disfluencies typically arise from difficulties in planning one’s production and signal an upcoming delay in speech, for example when retrieving an infrequent word or feeling uncertain of the answer (Clark & Fox Tree, 2002; Smith & Clark, 1993). Far from being random; disfluencies occur in predictable forms and locations in an utterance (Clark & Fox Tree, 2002). 
+
+Children likely have abundant and systematic experience hearing disfluencies in the language around them (Shriberg, 1996). Young children also have first-hand experience with disfluencies in their own productions-- prevalent from at least age 2 (Casillas, 2014). 22-month-old infants distinguish between fluent and disfluent adult-directed speech, suggesting that children are sensitive to disfluencies in the second year of life (Soderstrom & Morgan, 2007). 
+
+Still more impressive, by their second birthday, toddlers are able to monitor these cues online and predict that a disfluent speaker will likely refer to a novel object that is new to the discourse, rather than a familiar one that has already been discussed (Kidd et al., 2011).  Later in development this predicition may be tied to a speaker's knonwledge: 3 1/2 year-olds make the same prediction when pre-trained on a reliable speaker, but show no such prediction when pre-trained on a forgetful speaker who fails to remember the names familiar objects during training (Orena & White, 2015). Thus, from an early age, children reason about speech disfluencies and use them to guide referential inferences.
+
+While disfluencies are clearly powerful cues for predicting language, our account emphasizes that they should also provide rich evidence for drawing social inferences. Disfluencies in speech may often reflect underlying processing time demands, perhaps due to delays in lexical search time or conflict in choosing one's utterance. To the extent that listeners are sensitive to this principle of processing time (Clark, 1996), disfluencies could serve as powerfully broad cues to the processes going on in other people's minds. 
+
+Indeed, there is some evidence that adult listeners use disfluencies to draw a range of social inferences, such as inferring a speaker's knowledge. When a speaker accurately, but disfluently answers a trivia question, adult listeners infer that person is less knowledgable about that piece of information, compared with an accurate answer that is speedy (Brennan & Williams, 1995). Interestingly, there is even some evidence that when speakers produced non-answers (e.g., "I don't know" or "I can't remember"), disfluency leads adults to infer greater knowledgeability-- perhaps the disfluency derives from attempting to retrieve the answer before failing (Brennan & Williams, 1995). These results suggest adults may be reasoning about the underlying mental process that delays speech in powerfully flexible ways.
+
+Adult listeners use delays to infer a speaker's desires. When responding to more socially-relevant questions (e.g., "Can you give me a ride?"), a speaker who is slower to respond is seen as less willing to accept the request (Roberts et al., 2006; Roberts et al., 2011). Similarly, when agreeing with another's past statement (e.g., "The flyers look good."), delays are seen as indicating less agreement (Roberts et al., 2011). These speaker judements are even titrated by the degree of delay-- the longer the delay, the less willing a speaker seems (Roberts et al., 2011). Holding constant what a speaker says, the speed and fluency with which a speaker says it licenses broad, contextual inferences about their mental-states.
+
+While no work has directly examined the development of these inferences, a small literature examines children abilities to reason about timing more broadly. In the physical domain, young children believe an agent who succesfully builds a tower faster than another agent building the same tower is better at building-- though when the difficulty of the tower is also varied children have more trouble inferring relative competence (Leonard, Bennett-Pierre, Gweon, 2019). By age 7, children seem to use response time on a difficult problem to infer the likely underlying mental process, such that a quick answer is judged as a retrieved memory and a longer response time is judged as a in-the-moment solution (Richardson & Keil, 2020). Timing is an everyday force that even young children are likely very familiar with, and these studies suggest it may be a useful cue in the development of social reasoning.
+
+In the present studies, we test how and when young children use speech disfluencies to draw social inferences about a speaker's knowledge and preferences across a range of conversation contexts. We show that children infer an accurate, but disfluent speaker is less knowledgable (Experiments 1a and 2a), but only in certain conversational contexts (Experiments 1b and 2a). Then in a new conversational context, we demonstrate that children are similarly able to use disfluency to infer a speaker's relative preference (Experiment 3). Ongoing work further examines the richness of children's preference inferences, such as inferring relative dispreference.
+
+
+```{r child = "sections/knowledge_pilot.Rmd"}
+```
+
+```{r child = "sections/knowledge_experiment.Rmd"}
+```
+
+```{r child = "sections/preference_experiment.Rmd"}
+```
+
+# General Discussion
+
+Across 3 studies, children draw inferences about another agent's mental states based solely on the disfluencies in their speech, and these inferences are flexible and context-sensitive. We see consistent evidence that even young children infer that a disfluent speaker might be less knowledgeable. By age 6, children similarly use disfluencies to infer the relative preferences of a speaker. In sum, these findings suggest that disfluencies may serve as powerful cues to a speaker's mental processes, with broad applications.
+
+These studies add to the rich literature on children's ability to infer knowledgeability and engage in selective social learning (e.g., Koenig & Harris, 2005). In our studies, children make selective competence judgements, even while holding speaker accuracy constant. These results parallel recent demonstrations that young children are able to use accuracy irrelevant information in selective social learning paradigms (Aboody et al., 2018; Corriveau, Kurkul & Arunachalam, 2016). In our study, 4-5 year old children (as young as we tested) made these contextual knowledge inferences, at rates similar to adults.
+
+We see preliminary evidence that these knowledge inferences may emerge earlier in development than preference inferences in this task. Across both Experiment 2 and 3, children age 4-5 seem to infer a disfluent speaker might be less knowledgable, but do not extend this inference to the preference domain in Experiment 3. These preliminary results present the intruiging possiblity that children may more easily connect fluency and knowledge. Future work is needed to test the robustness of this developmental change. 
+
+While adults derive a range of social inferences based on speech timing and fluency (Brennan & Williams, 1995; Roberts et al., 2011), these inferences are likely built on general inferences about processing delays and their richness comes from contextualized interpretation. That is, these delays often acquire social meaning only after integrating information from the conversational context-- such as inferring that someone who says "sure" slowly is less willing to go along with previous speaker's request. It is possible that the preference inference in our experiments required more contextual information than the knowledge inference and was more difficult for young children as a result.
+
+Children are not merely responding heuristically to the percieved confidence of a speaker, but instead flexibly and contextually employing these inferences. Children as young as 2 are sensitive to an agent's confidence (e.g., facial expression, gesture, etc.) and selectively imitate more confident agents (Birch, Akmal, & Frampton, 2010). Our results cannot be explained by tracking confidence, as a confidence account should predict systematic choices in the ignorance conditions where children and adults show no speaker preference. We also see that children will select the disfluent speaker as having a stronger dispreference, though this effect is difficult to interpret in these data.
+
+Disfluencies are powerful cues for inference-- available in-the-moment and informative regardless of whether the child has the relevant knowledge to judge a speaker’s statement While these cues are doubtless helpful in language processing, this work extends such findings to suggest that these cues additionally serve a range of social inferences in early childhood. Disfluencies track processing difficulties, and thus can provide a useful window into an agent's mental processes, beyond the content of what is said. As young children learn about the social world, tracking speech disfluencies and processing delays broadly may provide a rich dataset for drawing social inferences.
+
+# Acknowledgement
+
+The authors are grateful to Cassidy Wilson and Madison Collins for their assistance in data collection. 
+
+\newpage
+
+# References
+
+
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}

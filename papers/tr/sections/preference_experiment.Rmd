@@ -1,0 +1,95 @@
+# Experiment 3
+
+Our account holds that disfluencies can be interpreted by listeners as domain general signs of processing time or conflict. As such, disfluencies should generate inferences in a variety of domains, beyond knowledgeablility. We next ask how children use speech disfluencies to infer an agent's preferences and dispreferences.
+
+In Experiment 3, we change the question under discussion so that each character is asked which of the two animals they like the best. Disfluency here may indicate a speaker is experiencing conflict between the two options, delaying their response time, while speed may indicate a strong and decisve preference (similar to the degree of agreement inference made by adults in Roberts et al., 2011). When two speakers both state the same preference, but one does so disfluently, we predicted that children would infer they had a relatively weaker preference. We further expected that this situation might license an additional inference about dispreference: namely, when asked who likes the unlabelled more (and thus dispreferred item), we expected that children would infer the disfluent speaker may have a relatively stronger preference. We expected that the dispreference inference might be difficult for our youngest children, based on some evidence that infants seem better able to represent preference rather than dispreference (Feiman, Carey, & Cushman, 2015). 
+
+Data for Experiment 3 were conducted remotely over Zoom, as described more below. To establish that our paradigm sucessfully translated to remote testing, we also included an additonal knowledge trial in Experiment 3, attempting to replicate our findings from Experiment 2a. 
+
+
+```{r e3}
+umm_pref <- read_csv(here("data/umm_pref_clean.csv"))
+
+umm_pref$question <- factor(umm_pref$question, levels = c("pref", "basketball", "dispref", "know_label", "soccer", "know_unlabel"), ordered = T)
+```
+
+## Methods
+
+### Participants
+
+We pre-registered a planned sample of 60 children to run in Experiment 3. Again, we planned to collect data from 20 children in each of 3 pre-deterimend age-groups: 4-5 years-old, 6-7 years-old, and 8-9 years-old. These data were collected online via Zoom with a live experimentor. Particpanting families were largely recruited via a participant database of Chicagoland families who have previously participated in in-person research studies. These data are still being collected, with a current sample of 56 children (16 children ages 4-5, 20 children ages 6-7, and 20 children ages 8-9). 
+
+### Procedure
+
+In Experiment 3, the general procedure was largely matched to the previous experiments. We made some changes to facillitate the shift to remote data collection, such as changing the response format (described below). The central change of interest was to shift the question under discussion.
+
+#### Preference Trial
+
+In Experiment 3, two characters are introduced one at a time, and each character is given an identifiable color by which they are referred (e.g., "the blue person"). This change facillitated children's ability to respond verbally when asked to select a character, rather than pointing to a character. In Experiment 3, each speaker enters the scene independently, and is alone when the question is asked. Viewing the tiger and the zebra, each speaker is asked, "Which of these animals is your favorite? Which one do you like the best?" Both speakers independently state a preference for the same animal, but one does so disfluently, saying e.g., "Um... the tiger is my favorite." At the end of the trial both speakers are then brought back and children are reminded what each speaker said. This ensures that both speakers are onscreen when the target questions are asked. Across participants, we counterbalanced whether the first or second speaker is the disfluent speaker, and which animal is preferred.
+
+Children are then asked three questions. The preference question: "Who do you think likes the tiger more?", the distractor question: "Who do you think is better at playing basketball?", and the dispreference question: "Who do you think likes the zebra more?" The order of the preference and dispreference questions was counterbalanced across participants. The distractor question was always asked second to ensure children were not merely switching responses across questions. Children completed one preference trial.
+
+#### Knowledge Trial
+
+After switching to remote testing due to the onset of the Covid-19 pandemic, we wanted to ensure that our paradigm successfully translated from in-person adminsitration. As an initial check, we included an additional trial always after the key preference trial described above. We made a few additional alterations to our paradigm, thus this additional trial cannot serve as a true replication.
+
+The Knolwedge trial is structured exactly like the preference trial described above. As in Experiments 1 and 2, the characters in the story are asked, "What is this animal called?" but in Experiment 3 both are asked to name the same animal independently. Both speakers label the animal accurately, but one does so disfluently (e.g., saying "This one is a... um... pig."). 
+
+Children are then asked three questions. The labelled knowledge question: "Who do you think knows more about [pigs]?", the distractor question: "Who do you think is better at playing soccer?", and the unlabelled knowledge question: "Who do you think knos more about [cows]?" The order of the labelled and unlabelled knowledge questions was counterbalanced across participants. The distractor question was always asked second to ensure children were not merely switching responses across questions. Children completed one knowledge trial.
+
+```{r pref-results, fig.height = 4, fig.width = 6, fig.cap="Preference trial results from Experiment 3."}
+umm_pref %>%
+  filter(Trial == "Trial 1") %>%
+  count(question, speaker, Age_Binned) %>%
+  group_by(question, Age_Binned) %>%
+  mutate(prop = n / sum(n)) %>%
+  ggplot(aes(x=question, y=prop, fill=speaker)) +
+  geom_bar(stat='identity') +
+  geom_hline(yintercept = .5, linetype="dashed", color="black") +
+  facet_grid(.~Age_Binned) +
+  theme(axis.text.x = element_text(angle = 10, hjust=.5)) +
+  ylab("Proportion of Children Selecting \n the Fluent Speaker") +
+  ggtitle("Trial 1: Preference Inferences")
+```
+
+```{r know-results, fig.height = 4, fig.width = 6, fig.cap="Knowledge trial results from Experiment 3."}
+umm_pref %>%
+  filter(Trial == "Trial 2") %>%
+  count(question, speaker, Age_Binned) %>%
+  group_by(question, Age_Binned) %>%
+  mutate(prop = n / sum(n)) %>%
+  ggplot(aes(x=question, y=prop, fill=speaker)) +
+  geom_bar(stat='identity') +
+  geom_hline(yintercept = .5, linetype="dashed", color="black") +
+  facet_grid(.~Age_Binned) +
+  theme(axis.text.x = element_text(angle = 10, hjust=.5)) +
+  xlab("Question") +
+  ylab("Proportion of Children Selecting \n the Fluent Speaker") +
+  ggtitle("Trial 2: Knowledge Inferences")
+```
+
+
+
+## Results
+
+Note that data colleciton remains ongoing for the youngest age group (4-5 year-olds, current n = 16/20) in Experiment 3, so we will only report overall effects at this time.
+
+### Preference.
+
+We first analyze children's judgements from trial 1 (the preference trial). When asked which speaker likes the preferred animal more, children were signficantly more likely to select the fluent speaker. When asked which speaker likes the dispreferred animal more, children were signficantly less likely to select the fluent speaker. When asked the distractor question, children showed no robust preference for one speaker over another.
+
+### Knowledge.
+
+Next, we analyze children's judgements from trial 2 (the knowledge trial). We see preliminary evidence that the updated paradigm administered over Zoom provides a conceptual replication of our in-person results from Experiment 2. Asked which speaker knows more about the labelled animal species, children were significantly more likely to select the fluent speaker than the disfluent speaker. This suggests that our paradigm successfully adapted to the Zoom administration. Additionally, when asked the distractor question, children showed no robust preference for one speaker over another.
+
+We expected that when asked who knows more about the unlabelled animal, children would be at chance or even favor the fluent speaker. However, children were signficantly more likely to select the disfluent speaker.
+
+## Discussion
+
+Overall, we find support for the idea that children use disfluencies not just to make knowledge inferences, but to make preference inferences as well, consistent with an account where disfluencies serve to signal general delays in processing with contextual intepretation. 
+
+While our data collection is still ongoing with the youngest age-group (4-5 year-olds), the current data suggest these youngest children may not be drawing reliable preference inferences. This would be an interesting contrast to our findings from Experiment 2a, which are replicated here, that 4-5 year-olds are able to infer knoweldgeability in a closley matched task. One interesting possiblity is that connection between disfluency and knowledge emerges before it is connected to other domains like preference, at least in this task.
+
+The data on children's inference of dispreference are more difficult to interpret. While children do reliably select the disfluent speaker as having a stronger preference for the unlabelled object, we see a similar, unpredicted pattern for children's knowledge inferences about the unlabelled animal. That is, while children made domain-wide competence inferences in Experiment 2a, and reliably report that the fluent speaker knows more about the animal they mentioned, they seem to make the opposite inference when asked about another, unlabelled animal. These data make the dispreference measure difficult to interpret, since this inference may be driven by order effects or task demands. In this experiment, the preference trial was our focus, thus the knowledge trial was always run afterwards. It is possible that the pattern of responses evident in trial 1 carried over to trial 2 and affected children's knowledge judgements as well. Ongoing work examines the effect of order on this inference.  
+
+
