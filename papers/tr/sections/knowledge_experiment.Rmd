@@ -1,8 +1,8 @@
 # Experiment 2a
 
-In two separate pilot studies, we saw preliminary evidence that children ages 4-9 selectively infer competence based on delay markers, even when both speakers are accurate, but also understand such inferences are not always licensed. Building off these pilot results, Experiment 2a was a pre-registered experiment to replicate our pilot effects in a larger sample and examine potential age-related change. Participants were randomly assinged to either the Labelling or Ignorance condition. We also added an additional trial (with new animals and speakers) to allow us to collect more judgments from each child. 
+In two separate pilot studies, we saw preliminary evidence that children ages 4-9 selectively infer competence based on disfluencies, even when both speakers are accurate, but also understand such inferences are not always licensed. Building off these pilot results, Experiment 2a was a pre-registered experiment to replicate our pilot effects in a larger sample and examine potential age-related change. Participants were randomly assinged to either the Labelling or Ignorance condition. We also added an additional trial (with new animals and speakers) to allow us to collect more judgments from each child. 
 
-Based on our pilot data, previous adult work (Brennan & Williams, 1995), we expected that even 4-5 year old children would infer an accurate but disfluent speaker would be less knowledgeable (labelling condition). We also predicted that children would make no such inference in the ignorance condition, and that older children may even infer that the disfluent speaker knows more in this condition, as suggested by the adult work (Brennan & Williams, 1995).
+Based on our pilot data and previous adult work [@brennan1995], we expected that even 4-5 year old children would infer an accurate but disfluent speaker would be less knowledgeable (labelling condition). We also predicted that children would make no such inference in the ignorance condition, and that older children may even infer that the disfluent speaker knows more in this condition, as suggested by the adult work [@brennan1995].
 
 ```{r e2}
 exp2 <- umm_data %>%
@@ -51,11 +51,12 @@ In Experiment 2a, we matched the stuffed animals in the story across conditions,
 exp2 %>%
   group_by(Version, Condition) %>%
   tidyboot_mean(propFluent) %>%
-  ggplot(aes(x=Condition, y=empirical_stat)) +
-  geom_bar(stat='identity', fill = "steelblue") +
+  ggplot(aes(x=Condition, y=empirical_stat, fill = Condition)) +
+  geom_bar(stat='identity') +
   geom_hline(yintercept = .5, linetype="dashed") +
   geom_linerange(aes(ymin=ci_lower, ymax=ci_upper)) +
   coord_cartesian(ylim = c(0,1)) +
+  scale_fill_brewer(palette = "Paired", direction = -1) +
   ylab("Proportion of Trials Selecting the Fluent Speaker") 
 ```
 
@@ -94,7 +95,7 @@ walk2(c("Condition", "Age"),
 
 ## Results
 
-Overall, our results are consistent with our initial pilot results from Experiments 1a and 1b (see Figure \ref{fig:exp2-overall}). Looking at the proportion of trials that children select the fluent speaker as more knowledgable, we see that children choose the fluent speaker as more knowledgeable in the Labelling condition (mean proportion of trials = `r exp2_all$estimate[1]`) signficantly more than chance ($t (50) =$ = `r exp2_all$statistic[1]`, $p$ `r exp2_all$p.value[1]` ). In the ignorance condition, children's responding did not differ from chance (mean proportion of trials = `r exp2_all$estimate[2]`), suggesting they were not relaibly selecting either speaker ($t (49) =$ = `r exp2_all$statistic[2]`, $p$  `r exp2_all$p.value[2]`). 
+Overall, our results are consistent with our initial pilot results from Experiments 1a and 1b (see Figure \ref{fig:exp2-overall}). Children chose the fluent speaker as more knowledgeable in the Labelling condition (mean proportion of trials = `r exp2_all$estimate[1]`) signficantly more than chance ($t (50) =$ = `r exp2_all$statistic[1]`, $p$ `r exp2_all$p.value[1]` ). In the ignorance condition, children's responding did not differ from chance (mean proportion of trials = `r exp2_all$estimate[2]`), suggesting they were not relaibly selecting either speaker ($t (49) =$ = `r exp2_all$statistic[2]`, $p =$  `r exp2_all$p.value[2]`). 
 
 ```{r exp2-age, fig.height = 4, fig.width = 6, fig.cap="Age-binned results from Experiment 2a, with bootstrapped 95% confidence intervals (black lines). The dashed line indicates chance responding."}
 exp2_age_plot <- exp2 %>%
@@ -103,33 +104,34 @@ exp2_age_plot <- exp2 %>%
   bind_rows(adults)
  
 exp2_age_plot %>% 
-  ggplot(aes(x=Condition, y=empirical_stat)) +
-  geom_bar(stat='identity', fill = "steelblue") +
+  ggplot(aes(x=Condition, y=empirical_stat, fill = Condition)) +
+  geom_bar(stat='identity') +
   geom_hline(yintercept = .5, linetype="dashed") +
   geom_linerange(aes(ymin=ci_lower, ymax=ci_upper)) +
   coord_cartesian(ylim = c(0,1)) +
   facet_grid(.~Age_Binned) +
   # theme_apa() + 
+  scale_fill_brewer(palette = "Paired", direction = -1) +
   theme(axis.text.x = element_text(angle = 10, hjust=.5)) +
   ylab("Proportion of Trials Selecting the Fluent Speaker")
 ```
 
-To compare choices across conditions, we used a mixed effects logistic regression prediciting speaker choice by condition and age (continuous), with random effects of subject and trial number. There was a signficant negative effect of condition, such that children were significantly less likely to choose the fluent speaker as more knowledgeable in the ignorance condition, compared with the Labelling condition ($\beta =$ `r Condition_estimate`, $p$ `r Condition_p.value`). The effect of age was not signficant ($\beta =$ `r Age_estimate`, $p =$ `r Age_p.value`).
+To compare choices across conditions, we used a mixed effects logistic regression prediciting speaker choice by condition and age (continuous), with random effects of subject and trial number. There was a signficant effect of condition, such that children were significantly more likely to choose the fluent speaker as more knowledgeable in the Labelling condition, compared with the Ignorance condition ($\beta =$ `r Condition_estimate`, $p$ `r Condition_p.value`). The effect of age was not signficant ($\beta =$ `r Age_estimate`, $p =$ `r Age_p.value`).
 
-Even the youngest children in our sample show this pattern (see Figure \ref{fig:exp2-age}). Looking only at the 4-5 year-olds, children selected fluent speaker as more knowledgeable in the Labelling condition (mean proportion of trials = `r exp2_4s$estimate[1]`) signficantly more than chance ($t (19) `=$ `r exp2_4s$statistic[1]`, $p$ `r exp2_4s$p.value[1]`). In the ignorance condition, 4-5 year old children's responding did not differ from chance (mean proportion of trials = `r exp2_4s$estimate[2]`), suggesting they were not relaibly selecting either speaker  ($t (19) =$ `r exp2_4s$statistic[2]`, $p =$ `r exp2_4s$p.value[2]`). 
+Even the youngest children in our sample show this pattern (see Figure \ref{fig:exp2-age}). Looking only at the 4-5 year-olds, children selected fluent speaker as more knowledgeable in the Labelling condition (mean proportion of trials = `r exp2_4s$estimate[1]`) signficantly more than chance ($t (19) =$ `r exp2_4s$statistic[1]`, $p$ `r exp2_4s$p.value[1]`). In the ignorance condition, 4-5 year old children's responding did not differ from chance (mean proportion of trials = `r exp2_4s$estimate[2]`), suggesting they were not relaibly selecting either speaker  ($t (19) =$ `r exp2_4s$statistic[2]`, $p =$ `r exp2_4s$p.value[2]`). 
 
 ## Discussion
 
-In Experiment 2a, children make robust, selective knowledge inferences, judging an accurate but disfluent speaker to be less knowledgeable than an accurate and fluent speaker. Supporting our initial pilot results, we also see evidence that even 4-5 year old children are consistently making this inference, with no evidence of developmental change. These results suggest that children are tracking speech disfluencies and using them to make social inferences about another person's knowledge from a young age, as adults do (Brennan & Williams, 1995). This work adds to a small number of demonstrations that young children's knowledge inferences are senstive to not just what you answer (i.e. accuracy), but also how you answer (e.g., Aboody, Huey, & Jara-Ettinger, 2018).
+In Experiment 2a, children made robust, selective knowledge inferences, judging an accurate but disfluent speaker to be less knowledgeable than an accurate and fluent speaker. Supporting our initial pilot results, we also see evidence that even 4-5 year old children are consistently making this inference, with no evidence of developmental change. These results suggest that children are tracking speech disfluencies and using them to make social inferences about another person's knowledge from a young age, as adults do [@brennan1995]. This work adds to a small number of demonstrations that young children's knowledge inferences are senstive to not just what you answer (i.e. accuracy), but also how you answer [e.g., @corriveau2016].
 
-Children show no reliable speaker preference in the ignorance condition. While a null result, this finding helps rule out the idea that children are heuristically tracking disfluencies and always ascribing incompetence. This finding also suggests that our results cannot be explained by low-level auditory fluency. There is evidence that preschool age children are sensitive to auditory fluency cues, judging speakers whose utterances were inflected with white noise to be less competent than matched speakers who spoke without such background noise (Bernard, Proust, & Clément, 2014). However, such an effect cannot explain these results as the ignorance condition contains an identical amount of disfluency, yet children make no such knowledge inferences.
+Children showed no reliable speaker preference in the ignorance condition. While a null result, this finding helps rule out the idea that children are heuristically tracking disfluencies and always ascribing incompetence. This finding also suggests that our results cannot be explained by low-level auditory features. There is evidence that preschool age children are sensitive to auditory fluency cues, judging speakers whose utterances were inflected with white noise to be less competent than matched speakers who spoke without such background noise [@bernard2014]. However, such an effect cannot explain these results as the ignorance condition contains an identical amount of disfluency, yet children make no such knowledge inferences.
 
-Previous work in adults suggests that they differentiate fluent and disfluent non-answers, judging disfluent non-answers to indicate greater knowledgeability than fluent non-answers (Brennan & Williams, 1995); however, in these data we saw no evidence that kids made such a differentiation. Thus, in our next experiment we collected adult judgements about these very same stimuli.
+Previous work suggests that adults differentiate fluent and disfluent non-answers, judging disfluent non-answers to indicate greater knowledgeability than fluent non-answers [@brennan1995]; however, in these data we saw no evidence that kids made such a differentiation. Thus, in our next experiment we collected adult judgements about these very same stimuli.
 
 
 # Experiment 2b
 
-To determine the adult-like pattern of responses in this task, we collected knowledge judgments from a sample of adults online. While past studies have addressed similar questions in adult samples (Brennan & Williams, 1995), our task differs along a number of dimensions and so a separate baseline of adult responses is required. Additionally, while Brennan & Williams (1995) reported that adult listeners inferred that disfluent non-answers indicated more knowledge, we saw no evidence that children were making this inference in Experiment 2a. In Experiment 2b, we can ask whether adults systematically prefer the disfluent speaker in ignorance condition, as the results from Brennan & Williams (1995) might suggest.
+To determine the adult-like pattern of responses in this task, we collected knowledge judgments from a sample of adults online. While past studies have addressed similar questions in adult samples [@brennan1995], our task differs along a number of dimensions and so a separate baseline of adult responses is required. Additionally, while @brennan1995 reported that adult listeners inferred that disfluent non-answers indicated more knowledge, we saw no evidence that children were making this inference in Experiment 2a. In Experiment 2b, we can ask whether adults systematically prefer the disfluent speaker in ignorance condition, as the results from @brennan1995 might suggest.
 
 ## Methods
 

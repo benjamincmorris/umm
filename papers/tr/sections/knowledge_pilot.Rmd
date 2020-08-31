@@ -5,9 +5,11 @@ condition_labels = c("Labelling", "Ignorance")
 
 # Experiment 1a
 
-When answering a question (e.g., “What is 5 times 7”), disfluencies indicate a delay in searching for an answer (“Um… 35”), which leads adults to infer a speaker is less knowledgeable even if they offer accurate information (Brennan & Williams, 1995). A large literature demonstrates that children by age 4 use language *accuracy* to judge knowledgeability-- for example, children prefer to learn from a previously accurate speaker rather than someone who mislabels or fails to label common objects (e.g., Koenig & Harris, 2005). The present study extends such work to ask how chilidren consider not just what a speaker says, but how they say it. Thus, in all of the present studies, accuracy is held constant. 
+<!-- 5. For intro to 1a I think I'd move the testimony sentence to that top and then follow it with the second paragraph that explains how this information is not always available. Then you can say that disfluencies are often available in both children and adults. Then say the question we will explore and cite the Brennen paper. -->
 
-Relevant prior accuracy information may rarely be available to the developing learner, or they might have limited knowledge on which to judge past accuracy. Moreover, in many situations, a speaker's accuracy alone may convey little about their underlying knowledge of the given domain (e.g., when discussing a relatively simple topic). Here, a better cue might be the speaker's ease and fluency in discussing the topic at hand. In a pilot study, we demonstrate that children ages 4-9 similarly use speaker disfluencies to infer knowledgeability.
+When answering a question (e.g., “What is 5 times 7”), disfluencies indicate a delay in searching for an answer (“Um… 35”), which leads adults to infer a speaker is less knowledgeable even if they offer accurate information [@brennan1995]. A large literature demonstrates that children by age 4 use language *accuracy* to judge knowledgeability-- for example, children prefer to learn from a previously accurate speaker rather than someone who mislabels or fails to label common objects [e.g., @koenig2005; see @sobel2013 for a review). The present study extends such work to ask how chilidren consider not just what a speaker says, but how they say it. Thus, in all of the present studies, accuracy is held constant.
+
+Relevant prior accuracy information may rarely be available to the developing learner, or they might have limited knowledge on which to judge past accuracy. Moreover, in many situations, a speaker's accuracy alone may convey little about their underlying knowledge of the given domain (e.g., when discussing a relatively simple topic). Here, a better cue might be the speaker's ease and fluency in discussing the topic at hand. Indeed, even children as young as 2 are sensitve to an informant's confidence, preferring not to learn from unconfident speakers who hesitate, appear puzzled, shrug, and emply other uncertainty [@birch2010]. In a small pilot study, we demonstrate that children ages 4-9 use speech disfluencies to infer knowledgeability [@brennan1995].
 
 ```{r e1}
 umm_data <- read_csv(here("data/umm1_kid_data_3_2020.csv")) %>%
@@ -44,29 +46,27 @@ exp1a_fluent <- exp1a %>%
 
 Children were presented with an animated story on an iPad about two speakers and two familiar stuffed animals (a cat and a dog). In the story, each speaker is asked “What is this animal called?” about the animal closest to them, and the experimenter reads their replies. In Experiment 1a, one speaker fluently labels their animal (“This one is a cat”) and the other speaker disfluenty labels the other animal (“This one is a… uh… dog”). Across participants, speaker order was counterbalanced, such that half the children heard the disfluency first. Children were then asked a domain-wide knowledge question: "Who do you think knows more about animals-- this person or this person?" while the experimenter pointed to each speaker. If children failed to choose one of the speakers (e.g., saying “both”) or failed to respond within 5 seconds, the experimenter repeated the question one time. Children completed only a single trial.
 
-```{r exp2-screenshot, fig.height = 5, fig.width = 5, fig.cap="Stimuli used for the labelling condition in Experiment 2."}
-img <- png::readPNG(here("papers/tr/figs/exp2_fact.png"))
-grid::grid.raster(img)
-```
-
-
 ```{r}
 test_label <- binom.test(exp1a_fluent, exp1a_subjs, p = 0.5)
 ```
 
-```{r pilots, fig.height = 4, fig.width = 3, fig.cap='Results from pilot Experiments 1a and 1b, plotting participant repsonses when asked "Who knows more about animals?" The dashed line indicates chance responding.'}
+```{r pilots, fig.height = 4, fig.width = 3, fig.cap='Results from pilot Experiments 1a and 1b, plotting participant repsonses when asked "Who knows more about animals?" with bootstrapped 95% confidence intervals (black lines). The dashed line indicates chance responding.'}
 umm_data %>%
+  mutate(Knowledge_Num = if_else(Knowledge == "Fluent", 1, 0)) %>%
   filter(isPilot == "Experiment 1- Pilot") %>%
   mutate(Condition = factor(Condition, levels=c("Labelling", "Ignorance"), 
                                             labels=c("Labelling \n [Exp 1a]", "Ignorance \n [Exp 1b]"))) %>%  
-  group_by(Condition) %>%
-  count(Knowledge) %>%
-  mutate(Proportion = n/sum(n)) %>%
-  ggplot(aes(x=Condition, y=Proportion, fill=Knowledge)) +
+  group_by(Condition) %>% 
+  tidyboot_mean(Knowledge_Num) %>%
+  # count(Knowledge) %>%
+  # mutate(Proportion = n/sum(n)) %>%
+  # filter(Knowledge == "Fluent") %>%
+  ggplot(aes(x=Condition, y= empirical_stat, fill=Condition)) +
     geom_bar(stat = 'identity', position = 'stack') +
+    geom_linerange(aes(ymin=ci_lower, ymax=ci_upper)) +
     geom_hline(yintercept = .5, linetype='dashed') +
     coord_cartesian(ylim=c(0,1)) +
-    scale_fill_brewer(palette = "Paired", direction = 1) +
+    scale_fill_brewer(palette = "Paired", direction = -1) +
     theme(panel.grid = element_line(color = "black", size=.2),
           panel.grid.major.y = element_blank()) +
     ylab("Proportion of Children Selecting \n the Fluent Speaker") +
@@ -75,14 +75,14 @@ umm_data %>%
 
 ## Results
 
-Asked which speaker knows more about animals, children were signficantly more likely to select the fluent speaker:  `r exp1a_fluent/ exp1a_subjs`% of children (`r exp1a_fluent`/`r exp1a_subjs`) reported that the fluent speaker knows more (binom $p <$ 0.001). 
+Asked which speaker knows more about animals, children were signficantly more likely to select the fluent speaker:  `r round(exp1a_fluent * 100/ exp1a_subjs)`% of children (`r exp1a_fluent`/`r exp1a_subjs`) reported that the fluent speaker knows more (binom $p <$ 0.001; see Figure \ref{fig:pilots}). 
 
 
 # Experiment 1b
 
-Is this because children think disfluencies always signal a lack of knowledge? Many disfluencies in naturalistic speech are related to discourse history, speech rate, or interlocutor familiarity and may not indicate knowledgeability (Clark & Fox Tree, 2002; Shriberg, 1996). Thus, adults do not always infer that disfluencies indicate incompetence, for example when answering a question with a non-answer (e.g., “Uh... I don’t know”). In this context, adults may even treat disfluency as a signal of greater knowledge-- the hesitation implied by a disfluency suggests the speaker feels like they might know the answer and attempted to search for it (Brennan & Williams, 1995).
+Do children think disfluencies always signal a lack of knowledge? Many disfluencies in naturalistic speech are related to discourse history, speech rate, or interlocutor familiarity and may not indicate knowledgeability [@clark2002; @shriberg1996]. Adults do not always infer that disfluencies indicate incompetence, for example when answering a question with a non-answer (e.g., “Uh... I don’t know”). In this context, adults may even treat disfluency as a signal of greater knowledge-- the hesitation implied by a disfluency suggests the speaker feels like they might know the answer and attempted to search for it [@brennan1995].
 
-In a pilot study, we demonstrate that children ages 4-9 do not simply use speaker disfluencies to assume a lack of knowledge, but instead flexibly refrain from making this inference depending on the context. Specifically, we show that children do not selectively infer knowledge when both speakers produce non-answers.
+In a pilot study, we demonstrate that children ages 4-9 do not always use speaker disfluencies to assume a lack of knowledge. Specifically, we show that children do not selectively infer knowledge when both speakers produce non-answers.
 
 ## Methods
 
@@ -108,6 +108,10 @@ test_ignorance <- binom.test(exp1b_fluent, exp1b_subjs, p = 0.5)
 
 ## Results
 
-Asked which speaker knows more about animals, children were at chance choosing the fluent and disfluent speaker with similar liklihood: `r exp1b_fluent/ exp1b_subjs`% of children (`r exp1b_fluent`/`r exp1b_subjs`) reported that the fluent speaker knows more (binom $ns$). 
+Asked which speaker knows more about animals, children were at chance choosing the fluent and disfluent speaker with similar liklihood: `r round(exp1b_fluent * 100/ exp1b_subjs)`% of children (`r exp1b_fluent`/`r exp1b_subjs`) reported that the fluent speaker knows more (binom $ns$; see Figure \ref{fig:pilots}). 
 
+```{r exp2-screenshot, fig.width = 7, fig.cap="Stimuli used in Experiment 2 for the Labelling condition (A) and the Ignorance condition (B)."}
+img <- png::readPNG(here("papers/tr/figs/exp2-conditions.png"))
+grid::grid.raster(img)
+```
 
